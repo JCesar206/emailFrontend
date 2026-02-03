@@ -1,11 +1,20 @@
 import { LogOut, Sun, Moon, Menu } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useContext } from "react";
 import { AuthContext } from "../auth/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useLanguage } from "../context/LanguageContext";
 
 export default function Navbar({ onMenu }) {
   const { logout } = useContext(AuthContext);
+  const navigate = useNavigate();
   const { theme, toggleTheme } = useTheme();
+  const { t, toggleLanguage, lang } = useLanguage();
+
+  const handleLogout = () => {
+    logout();
+    navigate("/login", { replace: true });
+  }
 
   return (
     <header
@@ -33,24 +42,27 @@ export default function Navbar({ onMenu }) {
       {/* Derecha */}
       <div className="flex items-center gap-2">
         <button
+        onClick={toggleLanguage}
+        title={t("navbar.language")}
+        className="p-2 rounded-full transition
+            hover:bg-gray-100 dark:hover:bg-gray-800
+            text-gray-700 dark:text-gray-200 cursor-pointer">{lang === "es" ? "EN" : "ES"}</button>
+        <button
           onClick={toggleTheme}
           aria-label="Cambiar tema"
-          title="Cambiar tema"
+          title={t("navbar.theme")}
           className="p-2 rounded-full transition
             hover:bg-gray-100 dark:hover:bg-gray-800
-            text-gray-700 dark:text-gray-200"
+            text-gray-700 dark:text-gray-200 cursor-pointer"
         >
           {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
         </button>
 
         <button
-          onClick={logout}
+          onClick={handleLogout}
           aria-label="Cerrar sesión"
-          title="Cerrar sesión"
-          className="p-2 rounded-full transition
-            hover:bg-red-100 dark:hover:bg-red-900/30
-            text-gray-700 dark:text-gray-200
-            hover:text-red-600 dark:hover:text-red-400"
+          title={t("navbar.logout")}
+          className="p-2 rounded-full transition hover:bg-red-100 dark:hover:bg-red-900/30 text-gray-700 dark:text-gray-200 hover:text-red-600 dark:hover:text-red-400 cursor-pointer"
         >
           <LogOut size={18} />
         </button>
