@@ -1,25 +1,35 @@
-import { createContext, useState } from "react";
+import { createContext, useState, useEffect } from "react";
+import api from "../api/axios";
 
 export const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
-	const [user, setUser] = useState(
-		!!localStorage.getItem("token")
-	);
+  const [token, setToken] = useState(
+    localStorage.getItem("token")
+  );
 
-const login = (token) => {
-	localStorage.setItem("token", token);
-	setUser(true);
-};
+  useEffect(() => {
+    if (token) {
+      api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+    } else {
+      delete api.defaults.headers.common["Authorization"];
+    }
+  }, [token]);
 
-const logout = () => {
-	localStorage.removeItem("token");
-	setUser(null);
-};
+  const login = (newToken) => {
+    localStorage.setItem("token", newToken);
+    setToken(newToken);
+  };
 
-return (
-	<AuthContext.Provider value={{ user, login, logout }}>
-		{children}
-	</AuthContext.Provider>
-	);
+  const logout = () => {
+    localStorage.removeItem("token");
+    setToken(null);
+    delete api.defaults.headers.common["Authorization"];
+  };
+
+  return (
+    <AuthContext.Provider value={{ token, login, logout }}>
+      {children}
+    </AuthContext.Provider>
+  );
 }
